@@ -140,8 +140,15 @@ class SkipSong(APIView):
 
 
 class SearchSong(APIView):
-    def get(self, request, format=None):
+    lookup_kwarg = 'search'
+
+    def post(self, request, format=None):
         room_code = self.request.session.get('room_code')
         room = Room.objects.filter(entry_code=room_code)[0]
-        search_song(room.host)
-        return Response({}, status=status.HTTP_204_NO_CONTENT)
+        query = request.data.get(self.lookup_kwarg)
+        response = search_song(room.host, query)
+        if query != None:
+            tracks = response.get('tracks')
+            return Response(tracks, status=status.HTTP_200_OK)
+
+        return Response(response, status=status.HTTP_418_IM_A_TEAPOT)
