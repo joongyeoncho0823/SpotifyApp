@@ -152,3 +152,30 @@ class SearchSong(APIView):
             return Response(tracks, status=status.HTTP_200_OK)
 
         return Response(response, status=status.HTTP_418_IM_A_TEAPOT)
+
+
+class AddQueue(APIView):
+    lookup_kwarg = 'uri'
+
+    def post(self, request, format=None):
+        room_code = self.request.session.get('room_code')
+        room = Room.objects.filter(entry_code=room_code)[0]
+        if self.request.session.session_key == room.host or room.guest_can_pause:
+            uri = request.data.get(self.lookup_kwarg)
+            response = add_queue(room.host, uri)
+            return Response(response, status=status.HTTP_200_OK)
+
+        return Response({}, status.HTTP_403_FORBIDDEN)
+
+
+class ChangeSong(APIView):
+    lookup_kwarg = 'uri'
+
+    def put(self, request, format=None):
+        room_code = self.request.session.get('room_code')
+        room = Room.objects.filter(entry_code=room_code)[0]
+        if self.request.session.session_key == room.host or room.guest_can_pause:
+            uri = request.data.get(self.lookup_kwarg)
+            print(uri)
+            response = change_song(room.host, uri)
+            return Response(response, status=status.HTTP_200_OK)

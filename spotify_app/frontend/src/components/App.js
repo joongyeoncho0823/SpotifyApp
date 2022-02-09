@@ -4,7 +4,6 @@ import RoomJoinPage from "./RoomJoinPage";
 import CreateRoomPage from "./CreateRoomPage";
 import HomePage from "./HomePage";
 import Room from "./Room";
-import Test from "./Test";
 import {
   BrowserRouter as Router,
   Route,
@@ -38,7 +37,6 @@ const App = () => {
                 <Route path='/join' element={ <RoomJoinPage /> }/>
                 <Route path='/create' element={ <CreateRoomPage /> }/>
                 <Route path='/room/:roomCode' element={ <Room /> }/>
-                <Route path='/test' element={ <Test path = "path" value="values"/> }/>
 
             </Routes>
         </Router>
