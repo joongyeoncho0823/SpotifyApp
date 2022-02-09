@@ -1,14 +1,22 @@
 import React, {useState, Component, useEffect} from "react";
 import { useParams } from "react-router-dom";
 import MusicPlayer from './MusicPlayer';
-
-// Make a snackbar (material-ui alert) whenever someone new joins the room(?)
+import {InputBase} from '@material-ui/core';
+import SearchIcon from '@material-ui/icons/Search';
+import SearchResultList from './SearchResultList';
 
 const Room = () => {
   const { roomCode } = useParams()
   let [guest_can_pause, changeGuest] = useState((false));
   let [votesToSkip, changeVotes] = useState(50);
   const [currentSong, changeCurrentSong] = useState();
+  const [search, changeSearch] = useState("");
+  const [searchResults, setSearchResults] = useState([])
+
+  const handleSearch = (e) =>{
+        changeSearch(e.target.value);
+        console.log(search);
+    }
 
 const getRoomDetails = () => {
     fetch("/api/get-room" + "?code=" + roomCode)
@@ -39,9 +47,41 @@ const getRoomDetails = () => {
   }
 
   const searchSong = () =>{
-    fetch("spotify/search").then((response) => response.json())
+    const requestOptions = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          search,
+        }),
+      };
+    fetch("/spotify/search", requestOptions).then((response) => {
+      if(!response.ok){
+        console.log("Got to not ok response");
+        return {}
+      }
+      else{
+        console.log("Got to ok response");
+        return response.json();
+      }
+    })
     .then((data)=> {
-      console.log(data);
+      setSearchResults(data.items.map(track => {
+        const smallestAlbumImage = track.album.images.reduce((smallest, image) => {
+          if(image.height <smallest.height){return image}
+          return smallest
+        },
+        track.album.images[0]
+        )
+
+        return{
+          artist: track.artists[0].name,
+          title: track.name,
+          uri: track.uri,
+          albumUrl: smallestAlbumImage.url
+        }
+      })
+      )
+      
     })
   }
 
@@ -62,6 +102,11 @@ const getRoomDetails = () => {
     getRoomDetails();
   }, [])
 
+  useEffect(() => {
+    if(!search) return setSearchResults([])
+    searchSong()
+  }, [search])
+
  /* 
  Polling request from Spotify server for current song every second.
  */
@@ -74,6 +119,12 @@ const getRoomDetails = () => {
 
   return (
     <div>
+      <SearchIcon/>
+      <InputBase placeholder ="Search for artists/songs" onChange={handleSearch}>
+      </InputBase>
+      {searchResults.map(track => (
+        <SearchResultList track = {track} key ={track.uri}/>
+      ))}      
       {currentSong ? <MusicPlayer currentSong = {currentSong}/> : <h3>Loading Song....</h3>}
     </div>
   );

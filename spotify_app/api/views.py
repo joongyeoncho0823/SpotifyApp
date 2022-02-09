@@ -96,6 +96,5 @@ class UserInRoom(APIView):
 
         data = {
             'code': self.request.session.get('room_code'),
-            'woah': 'woahsadf'
         }
         return JsonResponse(data, status=status.HTTP_200_OK)

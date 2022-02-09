@@ -3,7 +3,7 @@ from django.utils import timezone
 from datetime import timedelta
 from .credentials import CLIENT_ID, CLIENT_SECRET
 from requests import post, put, get
-import urllib.parse
+from urllib.parse import urlencode
 
 # Link to reference can be found in:
 # https: // developer.spotify.com/documentation/web-api/reference/
@@ -12,7 +12,6 @@ BASE_URL = "https://api.spotify.com/v1/"
 
 def get_user_tokens(session_id):
     user_tokens = SpotifyToken.objects.filter(user=session_id)
-    print(user_tokens)
     if user_tokens.exists():
         return user_tokens[0]
     else:
@@ -69,9 +68,9 @@ def refresh_spotify_token(session_id):
 
 def execute_spotify_api_request(session_id, endpoint, post_=False, put_=False):
     tokens = get_user_tokens(session_id)
+    print("this is token", tokens)
     headers = {'Content-Type': 'application/json',
                'Authorization': "Bearer " + tokens.access_token}
-
     if post_:
         post(BASE_URL + endpoint, headers=headers)
     if put_:
@@ -96,9 +95,18 @@ def skip_song(session_id):
     return execute_spotify_api_request(session_id, "me/player/next", post_=True)
 
 
-def search_song(session_id):
+def search_song(session_id, query):
     tokens = get_user_tokens(session_id)
     headers = {'Content-Type': 'application/json',
                'Authorization': "Bearer " + tokens.access_token}
-    data = {"q": "Time", "type": "track"}
-    return execute_spotify_api_request(session_id, "search")  # get request
+    endpoint = "https://api.spotify.com/v1/search"
+
+    data = urlencode({"q": {query}, "type": "artist,track", "limit": 5})
+
+    lookup_url = f"{endpoint}?{data}"
+    r = get(lookup_url, {}, headers=headers)
+
+    try:
+        return r.json()
+    except:
+        return {'Error': 'Issue with request'}
