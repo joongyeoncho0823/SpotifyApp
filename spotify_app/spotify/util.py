@@ -110,3 +110,21 @@ def search_song(session_id, query):
         return r.json()
     except:
         return {'Error': 'Issue with request'}
+
+# https://developer.spotify.com/console/post-queue/
+
+
+def add_queue(session_id, uri):
+    tokens = get_user_tokens(session_id)
+    headers = {'Content-Type': 'application/json',
+               'Authorization': "Bearer " + tokens.access_token}
+    endpoint = "https://api.spotify.com/v1/me/player/queue"
+    data = urlencode({"uri": uri})
+    lookup_url = f"{endpoint}?{data}"
+    print(lookup_url)
+    r = post(lookup_url, {}, headers=headers)
+    print(r)
+    try:
+        return r.json()
+    except:
+        return {'Error': 'Issue with request'}

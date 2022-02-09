@@ -15,7 +15,6 @@ const Room = () => {
 
   const handleSearch = (e) =>{
         changeSearch(e.target.value);
-        console.log(search);
     }
 
 const getRoomDetails = () => {
@@ -56,11 +55,9 @@ const getRoomDetails = () => {
       };
     fetch("/spotify/search", requestOptions).then((response) => {
       if(!response.ok){
-        console.log("Got to not ok response");
         return {}
       }
       else{
-        console.log("Got to ok response");
         return response.json();
       }
     })
@@ -122,9 +119,11 @@ const getRoomDetails = () => {
       <SearchIcon/>
       <InputBase placeholder ="Search for artists/songs" onChange={handleSearch}>
       </InputBase>
+      <div>
       {searchResults.map(track => (
         <SearchResultList track = {track} key ={track.uri}/>
-      ))}      
+      ))}  
+      </div>    
       {currentSong ? <MusicPlayer currentSong = {currentSong}/> : <h3>Loading Song....</h3>}
     </div>
   );
