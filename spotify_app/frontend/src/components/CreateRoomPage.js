@@ -100,11 +100,6 @@ const CreateRoomPage = () =>{
             Back
           </Button>
         </Grid>
-        <Grid item xs={12} align="center">
-          <Button color="secondary" variant="contained">
-            Authenticates
-          </Button>
-        </Grid>
       </Grid>
     );
   }
