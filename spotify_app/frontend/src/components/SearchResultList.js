@@ -21,12 +21,9 @@ const searchResultList = (props) =>{
       fetch('/spotify/add-queue', requestOptions).then(
           (response) => {
       if(!response.ok){
-        console.log("Got to not ok response in add queue");
         return {}
       }
       else{
-          console.log("This is the response in ok response", response);
-        // console.log("Got to ok response in add queue");
         return response.json();
       }
     });
